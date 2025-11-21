@@ -1,15 +1,15 @@
 INFO:     Will watch for changes in these directories: ['/home/workspace']
 INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
-INFO:     Started reloader process [119] using StatReload
-INFO:     Started server process [121]
+INFO:     Started reloader process [163] using StatReload
+INFO:     Started server process [165]
 INFO:     Waiting for application startup.
 INFO:     Application startup complete.
-INFO:     172.20.0.1:51928 - "GET /api/products HTTP/1.1" 200 OK
-INFO:     172.20.0.1:51934 - "GET /api/feedback HTTP/1.1" 200 OK
-INFO:     172.20.0.1:51950 - "HEAD / HTTP/1.1" 405 Method Not Allowed
-INFO:     172.20.0.1:51928 - "GET /api/products HTTP/1.1" 200 OK
-INFO:     172.20.0.1:51934 - "GET /api/feedback HTTP/1.1" 200 OK
-INFO:     172.20.0.1:38718 - "GET /api/products HTTP/1.1" 200 OK
-INFO:     172.20.0.1:38734 - "GET /api/feedback HTTP/1.1" 200 OK
-INFO:     172.20.0.1:38718 - "GET /api/products HTTP/1.1" 200 OK
-INFO:     172.20.0.1:38734 - "GET /api/feedback HTTP/1.1" 200 OK
+INFO:     172.20.0.1:37916 - "GET /api/feedback HTTP/1.1" 200 OK
+INFO:     172.20.0.1:37932 - "GET /api/products HTTP/1.1" 200 OK
+INFO:     172.20.0.1:37916 - "GET /api/feedback HTTP/1.1" 200 OK
+INFO:     172.20.0.1:37932 - "GET /api/products HTTP/1.1" 200 OK
+INFO:     172.20.0.1:37960 - "HEAD / HTTP/1.1" 405 Method Not Allowed
+INFO:     172.20.0.1:37948 - "GET /api/products HTTP/1.1" 200 OK
+INFO:     172.20.0.1:37948 - "GET /api/feedback HTTP/1.1" 200 OK
+INFO:     172.20.0.1:55304 - "GET /api/products HTTP/1.1" 200 OK
+INFO:     172.20.0.1:37948 - "GET /api/feedback HTTP/1.1" 200 OK
