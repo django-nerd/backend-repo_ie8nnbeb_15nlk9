@@ -131,7 +131,7 @@ async def seed_or_update_products_on_startup():
         spawner_unit = 0.025
         shulker_price = 40.0
         money_per_million = 0.03
-        elytra_price = 12.0
+        elytra_price = 10.0  # updated to $10
 
         catalog = [
             {
@@ -161,11 +161,8 @@ async def seed_or_update_products_on_startup():
                     "image_url": "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?q=80&w=1200&auto=format&fit=crop",
                     "tags": ["money", "cash", "balance"],
                     "in_stock": True,
-                    "variants": [
-                        {"name": "1M", "type": "option", "price": 1 * money_per_million},
-                        {"name": "5M", "type": "option", "price": 5 * money_per_million},
-                        {"name": "10M", "type": "option", "price": 10 * money_per_million}
-                    ],
+                    # Remove variants as requested; quantity will represent millions
+                    "variants": [],
                     "updated_at": datetime.utcnow(),
                 }
             },
@@ -181,7 +178,7 @@ async def seed_or_update_products_on_startup():
                     "in_stock": True,
                     "variants": [
                         {"name": "Standard", "type": "option", "price": elytra_price},
-                        {"name": "Unbreaking III + Mending", "type": "option", "price": elytra_price}
+                        {"name": "Elytra Shulker Box", "type": "bundle", "price": 50.0}
                     ],
                     "updated_at": datetime.utcnow(),
                 }
