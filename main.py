@@ -1,12 +1,12 @@
 import os
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
 from typing import List, Optional
 from bson import ObjectId
+from datetime import datetime
 
 from database import db, create_document, get_documents
-from schemas import Product
+from schemas import Product, Feedback
 
 app = FastAPI(title="ZenSupply API", description="Backend for the ZenSupply Minecraft Donut SMP IRL Store")
 
@@ -88,6 +88,119 @@ async def list_products(category: Optional[str] = None, q: Optional[str] = None,
         return docs
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/products/{product_id}")
+async def get_product(product_id: str):
+    try:
+        doc = db["product"].find_one({"_id": ObjectId(product_id)})
+        if not doc:
+            raise HTTPException(status_code=404, detail="Product not found")
+        doc["id"] = str(doc.pop("_id"))
+        return doc
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+# Feedback API
+@app.post("/api/feedback", response_model=dict)
+async def create_feedback(feedback: Feedback):
+    try:
+        new_id = create_document("feedback", feedback)
+        return {"id": new_id}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/feedback", response_model=List[dict])
+async def list_feedback(limit: int = 20):
+    try:
+        docs = get_documents("feedback", {}, limit)
+        for d in docs:
+            if d.get("_id" ):
+                d["id"] = str(d.pop("_id"))
+        return docs
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.on_event("startup")
+async def seed_or_update_products_on_startup():
+    """
+    Ensure the three core products exist and have the latest pricing/variants.
+    Upsert by SKU so existing docs get updated to requested prices.
+    """
+    try:
+        # Pricing per user request
+        spawner_unit = 0.025
+        shulker_price = 40.0
+        money_per_million = 0.03
+        elytra_price = 12.0
+
+        catalog = [
+            {
+                "sku": "SPAWNER-SKELETON",
+                "doc": {
+                    "title": "Skeleton Spawner",
+                    "description": "Farm bones and arrows. Choose single units or grab a full shulker.",
+                    "price": spawner_unit,
+                    "category": "Spawners",
+                    "image_url": "https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=1200&auto=format&fit=crop",
+                    "tags": ["spawner", "skeleton", "farm", "shulker"],
+                    "in_stock": True,
+                    "variants": [
+                        {"name": "Single", "type": "option", "price": spawner_unit},
+                        {"name": "Shulker (27x)", "type": "bundle", "bundle_qty": 27, "price": shulker_price}
+                    ],
+                    "updated_at": datetime.utcnow(),
+                }
+            },
+            {
+                "sku": "MONEY-PACK",
+                "doc": {
+                    "title": "Money",
+                    "description": "Boost your balance instantly with IRL store credits.",
+                    "price": money_per_million,
+                    "category": "Money",
+                    "image_url": "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?q=80&w=1200&auto=format&fit=crop",
+                    "tags": ["money", "cash", "balance"],
+                    "in_stock": True,
+                    "variants": [
+                        {"name": "1M", "type": "option", "price": 1 * money_per_million},
+                        {"name": "5M", "type": "option", "price": 5 * money_per_million},
+                        {"name": "10M", "type": "option", "price": 10 * money_per_million}
+                    ],
+                    "updated_at": datetime.utcnow(),
+                }
+            },
+            {
+                "sku": "ELYTRA-BASE",
+                "doc": {
+                    "title": "Elytra",
+                    "description": "Soar across the server with an Elytra.",
+                    "price": elytra_price,
+                    "category": "Kits",
+                    "image_url": "https://images.unsplash.com/photo-1606117331651-0c9f0c1f2b2e?q=80&w=1200&auto=format&fit=crop",
+                    "tags": ["elytra", "flight", "wings"],
+                    "in_stock": True,
+                    "variants": [
+                        {"name": "Standard", "type": "option", "price": elytra_price},
+                        {"name": "Unbreaking III + Mending", "type": "option", "price": elytra_price}
+                    ],
+                    "updated_at": datetime.utcnow(),
+                }
+            },
+        ]
+
+        for item in catalog:
+            sku = item["sku"]
+            doc = { **item["doc"], "sku": sku }
+            existing = db["product"].find_one({"sku": sku})
+            if existing:
+                db["product"].update_one({"_id": existing["_id"]}, {"$set": doc})
+            else:
+                doc["created_at"] = datetime.utcnow()
+                db["product"].insert_one(doc)
+
+    except Exception as e:
+        # Log but don't crash startup
+        print(f"Seed/update error: {e}")
 
 if __name__ == "__main__":
     import uvicorn
